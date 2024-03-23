@@ -11,5 +11,5 @@ logging.basicConfig(
 load_dotenv()
 
 TG_TOKEN = os.getenv('TOKEN')
-logger.error('fff')
+logger.error('ffff')
 print(TG_TOKEN)
