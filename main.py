@@ -1,6 +1,7 @@
 import logging
 from dotenv import load_dotenv
 import os
+import aiogram
 
 
 logger = logging.getLogger('kurwa')
@@ -11,5 +12,6 @@ logging.basicConfig(
 load_dotenv()
 
 TG_TOKEN = os.getenv('TOKEN')
-logger.error('ffff')
-print(TG_TOKEN)
+logger.error('fff')
+
+def say_hi
