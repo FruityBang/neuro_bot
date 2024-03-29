@@ -1,17 +1,30 @@
+import asyncio
 import logging
+import sys
+
 from dotenv import load_dotenv
 import os
-import aiogram
+from aiogram import Bot
+import handlers as ha
 
-
-logger = logging.getLogger('kurwa')
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO)
 
 load_dotenv()
-
 TG_TOKEN = os.getenv('TOKEN')
-logger.error('fff')
 
-def say_hi
+bot = Bot(TG_TOKEN)
+
+
+async def main():
+    await bot.delete_webhook(drop_pending_updates=True)
+    try:
+        await ha.dp.start_polling(bot)
+    finally:
+        await bot.session.close()
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print('Program Interrupted')
