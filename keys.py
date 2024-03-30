@@ -11,7 +11,7 @@ main_keyboard = ReplyKeyboardMarkup(
             KeyboardButton(text='Эмоджи')
         ],
         [
-            KeyboardButton(text='Лёха')
+            KeyboardButton(text='Выбрать рубрику')
         ]
     ],
     resize_keyboard=True,
