@@ -8,7 +8,7 @@ from aiogram.types import (
 main_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text='Эмоджи')
+            KeyboardButton(text='Получить эмоджи')
         ],
         [
             KeyboardButton(text='Выбрать рубрику')
