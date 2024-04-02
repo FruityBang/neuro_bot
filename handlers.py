@@ -35,6 +35,7 @@ async def get_kurwa(message: Message):
 
 @dp.message(F.text.lower().startswith('заказать'))
 async def get_kurwa(message: Message):
+
     await message.answer(
         'Заказать'
     )
@@ -65,4 +66,4 @@ async def get_photo(message: Message):
 @dp.message()
 async def echo(message: Message):
     print(message)
-    await message.answer('type /start command')
+    await message.answer('<b>type /start command</b>')

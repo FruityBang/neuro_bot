@@ -2,16 +2,18 @@ import asyncio
 import logging
 import sys
 
+from aiogram.enums import parse_mode, ParseMode
 from dotenv import load_dotenv
 import os
 from aiogram import Bot
 import handlers as ha
+from aiogram.client.bot import DefaultBotProperties
 
 
 load_dotenv()
 TG_TOKEN = os.getenv('TOKEN')
 
-bot = Bot(TG_TOKEN)
+bot = Bot(TG_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
 
 async def main():
