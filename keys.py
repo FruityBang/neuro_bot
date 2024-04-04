@@ -4,7 +4,8 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton
 )
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
+from aiogram.filters.callback_data import CallbackData
 
 
 rubrics_dict = {
@@ -57,3 +58,39 @@ def rubrics_keyboard():
     builder.button(text='НАЗАД')
     builder.adjust(3, 3, 3, 3, 3)
     return builder.as_markup(resize_keyboard=True)
+
+
+class UserNews:
+    instances = []
+
+    def __init__(self, user, news_list):
+        self.user = user
+        self.news_list = news_list
+        UserNews.instances.append(self)
+
+    @classmethod
+    def get(cls, value):
+        return [inst for inst in cls.instances if inst.user == value]
+
+
+class NewsPagination(CallbackData, prefix='pagination'):
+    action: str
+    page: int
+
+
+def paginator(page: int = 0):
+    builder = InlineKeyboardBuilder()
+    print(f'page {page}')
+    builder.row(
+        InlineKeyboardButton(
+            text='⬅', callback_data=NewsPagination(action='prev', page=page).pack()
+        ),
+        InlineKeyboardButton(
+            text='читать полностью', callback_data=NewsPagination(action='read', page=page).pack()
+        ),
+        InlineKeyboardButton(
+            text='➡', callback_data=NewsPagination(action='next', page=page).pack()
+        ),
+        width=1
+    )
+    return builder.as_markup()

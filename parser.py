@@ -8,31 +8,29 @@ head = {'User-Agent': 'Mozilla/5'}
 
 
 def get_rubric_news(url=link, suff='', headers=head):
-    response = requests.get(url=url+suff, headers=headers).text
+    #print(f'suff = {suff}')
+    response = requests.get(url=url+'rubrics/'+suff, headers=headers).text
     soup = BeautifulSoup(response, 'lxml')
-    blocks = soup.find_all(class_='card-mini _longgrid')
     news_list = []
-    for block in blocks[:15]:
-        block_elem = []
+    main_block = soup.find(class_='card-feature')
+    main_time = main_block.find(class_='card-feature__date').text
+    main_title = main_block.text[:-len(main_time)]
+    main_new = [main_time, main_title, main_block.__dict__['attrs']['href']]
+    news_list.append(main_new)
+    blocks = soup.find_all(class_='card-mini _longgrid')
+    for block in blocks[:10]:
+        block_new = []
         text = block.text
         time = text[-5:]
         title = text[:-5]
-        block_elem.append(time)
-        block_elem.append(title)
-        block_elem.append(block.__dict__['attrs']['href'])
-        news_list.append(block_elem)
-
+        block_new.append(time)
+        block_new.append(title)
+        block_new.append(block.__dict__['attrs']['href'])
+        news_list.append(block_new)
     return news_list
-#    block1 = blocks[0]
-#    block1 = block1.__dict__['attrs']['href']
-#    block2 = blocks[1]
-#    block2 = block2.text
-#    print(block1)
-#    print(block2)
 
 
 
 
 if __name__ == '__main__':
-    get_rubric_news(suff=rubrics_dict['Россия'])
-
+    #print(get_rubric_news(suff=rubrics_dict['Россия']))
