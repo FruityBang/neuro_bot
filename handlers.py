@@ -1,14 +1,14 @@
 from aiogram import Bot, Dispatcher, F
-from aiogram.types import Message, ReactionTypeEmoji, CallbackQuery
-from aiogram.filters import CommandStart
 from aiogram.enums.dice_emoji import DiceEmoji
-import keys
-from random import choice
-import parser
-from contextlib import suppress
 from aiogram.exceptions import TelegramBadRequest
-from main import bot
-import random
+from aiogram.filters import CommandStart
+from aiogram.types import Message, ReactionTypeEmoji, CallbackQuery
+from contextlib import suppress
+from random import choice
+
+import keys
+import main
+import parser
 
 
 dp = Dispatcher()
@@ -47,7 +47,7 @@ async def get_wisdom(callback: CallbackQuery):
     await callback.message.answer_dice(DiceEmoji.SLOT_MACHINE)
     secret_wisdom = await parser.get_po_zaslugam()
     await callback.message.answer(secret_wisdom, reply_markup=keys.main_keyboard)
-    await bot.delete_message(
+    await main.bot.delete_message(
         chat_id=callback.from_user.id,
         message_id=callback.message.message_id
     )
@@ -55,7 +55,6 @@ async def get_wisdom(callback: CallbackQuery):
 
 @dp.message(F.text == 'НАЗАД')
 async def get_back(message: Message):
-
     await message.answer(
         text='По новой',
         reply_markup=keys.main_keyboard
@@ -91,10 +90,8 @@ async def news_pagination(callback: CallbackQuery, callback_data: keys.NewsPagin
     page_num = int(callback_data.page)
     news_list = keys.UserNews.get(callback.from_user.id)[0].news_list
     if callback_data.action == 'prev':
-        print('prev')
         page = page_num - 1 if page_num > 0 else 0
-    if callback_data.action == 'next':
-        print('next')
+    else:
         page = page_num + 1 if page_num < (len(news_list) - 1) else page_num
     with suppress(TelegramBadRequest):
         await callback.message.edit_text(
@@ -121,8 +118,8 @@ async def read_new(callback: CallbackQuery, callback_data: keys.NewsPagination):
 
 @dp.message(F.text.lower().startswith('заказать'))
 async def get_random(message: Message):
-    news_list = await parser.get_rubric_news(suff=keys.rubrics_dict[random.choice(list(keys.rubrics_dict))])
-    url = random.choice(news_list[1:])[2]
+    news_list = await parser.get_rubric_news(suff=keys.rubrics_dict[choice(list(keys.rubrics_dict))])
+    url = choice(news_list[1:])[2]
     photo, new_to_display = await parser.get_new(suff=url)
     await message.answer_photo(photo)
     await message.answer(new_to_display)
@@ -135,5 +132,4 @@ async def echo(message: Message):
 
 @dp.callback_query()
 async def echo_callback(callback: CallbackQuery):
-
     await callback.message.answer(callback.data)

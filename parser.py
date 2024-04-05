@@ -1,8 +1,6 @@
 import asyncio
-
 import requests
 from bs4 import BeautifulSoup
-from keys import rubrics_dict
 from trans import make_tatar_wisdom
 
 
@@ -39,7 +37,7 @@ async def get_new(url=news_link, suff='', headers=head):
     raw_new = soup.find('div', class_='topic-page__container')
     img = raw_new.find('img', class_='picture__image').attrs['src']
     title = raw_new.find('span', class_='topic-body__title').text
-    time = raw_new.find( class_='topic-header__item topic-header__time').text
+    time = raw_new.find(class_='topic-header__item topic-header__time').text
     text_blocks = raw_new.find_all(class_='topic-body__content-text')
 
     body = ''
@@ -52,7 +50,6 @@ async def get_new(url=news_link, suff='', headers=head):
     return img, full_new
 
 
-
 async def get_po_zaslugam(url=joke_url, headers=head):
     response = requests.get(url=url, headers=headers).text
     soup = BeautifulSoup(response, 'lxml')
@@ -60,7 +57,6 @@ async def get_po_zaslugam(url=joke_url, headers=head):
 
     pure_wisdom = await make_tatar_wisdom(nullable_wisdom)
     return pure_wisdom
-
 
 
 if __name__ == '__main__':
