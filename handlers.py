@@ -7,16 +7,11 @@ from random import choice
 import parser
 from contextlib import suppress
 from aiogram.exceptions import TelegramBadRequest
+from main import bot
+import random
 
 
 dp = Dispatcher()
-random_rubric = None
-test_list = [
-    ['1', '2', '/articles/2024/04/02/catastrophe/'],
-    ['3', '4', '/news/2024/04/03/v-rossii-podrostok-zadal-sverstniku-vopros-i-izbil-ego-pod-video/'],
-    ['5', 'курва', '/news/2024/04/03/v-rossii-podrostok-zadal-sverstniku-vopros-i-izbil-ego-pod-video/'],
-    ['6', 'курва3', '/news/2024/04/03/v-rossii-podrostok-zadal-sverstniku-vopros-i-izbil-ego-pod-video/']
-]
 
 
 @dp.message(CommandStart())
@@ -31,25 +26,6 @@ async def get_start(message: Message, bot: Bot):
     )
 
 
-@dp.message(F.text.lower() == 'псссс')
-async def get_kurwa(message: Message):
-    lottery = await message.answer_dice(DiceEmoji.SLOT_MACHINE)
-    global random_rubric
-    random_rubric = lottery.dice.value
-    await message.answer(
-        'Sector kurwa is on the drum',
-        reply_markup=keys.inline_keyboard
-    )
-
-
-@dp.message(F.text.lower().startswith('заказать'))
-async def get_kurwa(message: Message):
-
-    await message.answer(
-        'Заказать'
-    )
-
-
 @dp.message(F.text.lower().startswith('выбрать'))
 async def get_rubric(message: Message):
     await message.answer(
@@ -58,25 +34,44 @@ async def get_rubric(message: Message):
     )
 
 
+@dp.message(F.text.lower() == 'псссс')
+async def get_kurwa(message: Message):
+    await message.answer(
+        'Sector kurwa is on the drum',
+        reply_markup=keys.secret_inline_keyboard
+    )
+
+
 @dp.callback_query(F.data.lower() == 'kurwa')
-async def get_kurwa2(callback: CallbackQuery):
-    print(random_rubric)
-    await callback.message.answer('KKK')
+async def get_wisdom(callback: CallbackQuery):
+    await callback.message.answer_dice(DiceEmoji.SLOT_MACHINE)
+    secret_wisdom = await parser.get_po_zaslugam()
+    await callback.message.answer(secret_wisdom, reply_markup=keys.main_keyboard)
+    await bot.delete_message(
+        chat_id=callback.from_user.id,
+        message_id=callback.message.message_id
+    )
+
+
+@dp.message(F.text == 'НАЗАД')
+async def get_back(message: Message):
+
+    await message.answer(
+        text='По новой',
+        reply_markup=keys.main_keyboard
+    )
 
 
 @dp.message(F.photo)
 async def get_photo(message: Message):
-    print(F.photo)
-    await message.answer('Ok kurwa. I got photo')
-    print(message.photo)
-    # print(bot.get_file(message.photo))
+    await message.answer('Ok. I got photo')
 
 
 @dp.message(F.text.in_(keys.rubrics_dict))
 async def rubric_chosen(message: Message):
 
     if message.text in keys.rubrics_dict:
-        news_list = parser.get_rubric_news(suff=keys.rubrics_dict[message.text])
+        news_list = await parser.get_rubric_news(suff=keys.rubrics_dict[message.text])
         exist_session = keys.UserNews.get(message.from_user.id)
 
         if not exist_session:
@@ -86,7 +81,7 @@ async def rubric_chosen(message: Message):
             exist_session[0].news_list = news_list
 
         await message.answer(
-            f'{news_list[0][0]} - {news_list[0][1]}',
+            f'<b>!ПЕРЕДОВИЦА!\n</b><i>- {news_list[0][0]} -</i>\n{news_list[0][1]}',
             reply_markup=keys.paginator()
         )
 
@@ -103,15 +98,38 @@ async def news_pagination(callback: CallbackQuery, callback_data: keys.NewsPagin
         page = page_num + 1 if page_num < (len(news_list) - 1) else page_num
     with suppress(TelegramBadRequest):
         await callback.message.edit_text(
-            f'{news_list[page][0]} - {news_list[page][1]}',
+            f'<i>- {news_list[page][0]} -</i>\n{news_list[page][1]}',
             reply_markup=keys.paginator(page=page)
         )
     await callback.answer()
 
 
+@dp.callback_query(keys.NewsPagination.filter(F.action == 'read'))
+async def read_new(callback: CallbackQuery, callback_data: keys.NewsPagination):
+    page = int(callback_data.page)
+    url = keys.UserNews.get(callback.from_user.id)[0].news_list[page][2]
+    if not page:
+        await callback.message.answer(
+            'Заглавный материал доступен на сайте',
+            reply_markup=keys.button_for_main(parser.news_link+url)
+        )
+    else:
+        photo, new_to_display = await parser.get_new(suff=url)
+        await callback.message.answer_photo(photo)
+        await callback.message.answer(new_to_display)
+
+
+@dp.message(F.text.lower().startswith('заказать'))
+async def get_random(message: Message):
+    news_list = await parser.get_rubric_news(suff=keys.rubrics_dict[random.choice(list(keys.rubrics_dict))])
+    url = random.choice(news_list[1:])[2]
+    photo, new_to_display = await parser.get_new(suff=url)
+    await message.answer_photo(photo)
+    await message.answer(new_to_display)
+
+
 @dp.message()
 async def echo(message: Message):
-    await message.answer(message.text)
     await message.answer('<b>type /start command</b>')
 
 
@@ -119,4 +137,3 @@ async def echo(message: Message):
 async def echo_callback(callback: CallbackQuery):
 
     await callback.message.answer(callback.data)
-    await callback.message.answer('lll')

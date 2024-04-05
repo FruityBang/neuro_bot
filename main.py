@@ -2,7 +2,7 @@ import asyncio
 import logging
 import sys
 
-from aiogram.enums import parse_mode, ParseMode
+from aiogram.enums import ParseMode
 from dotenv import load_dotenv
 import os
 from aiogram import Bot

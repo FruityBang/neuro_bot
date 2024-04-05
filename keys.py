@@ -29,7 +29,7 @@ rubrics_dict = {
 main_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text='Заказать случайную новость с главной')
+            KeyboardButton(text='Заказать случайную новость')
         ],
         [
             KeyboardButton(text='Выбрать рубрику')
@@ -43,11 +43,11 @@ main_keyboard = ReplyKeyboardMarkup(
     input_field_placeholder='Выбирай'
 )
 
-inline_keyboard = InlineKeyboardMarkup(
+secret_inline_keyboard = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(text='Получить по заслугам', callback_data='kurwa')
-        ]
+        ],
     ]
 )
 
@@ -57,7 +57,7 @@ def rubrics_keyboard():
     [builder.button(text=rubric) for rubric in rubrics_dict]
     builder.button(text='НАЗАД')
     builder.adjust(3, 3, 3, 3, 3)
-    return builder.as_markup(resize_keyboard=True)
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
 
 class UserNews:
@@ -94,3 +94,9 @@ def paginator(page: int = 0):
         width=1
     )
     return builder.as_markup()
+
+def button_for_main(url: str):
+    inline_keyboard_for_main = InlineKeyboardBuilder()
+    inline_keyboard_for_main.button(text='перейти', url=url)
+    return inline_keyboard_for_main.as_markup()
+

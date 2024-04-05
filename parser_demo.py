@@ -3,23 +3,24 @@ import requests
 from bs4 import BeautifulSoup
 
 
-#link = 'https://lenta.ru/'
-#headers = {'User-Agent': 'Mozilla/5'}
-#resp = requests.get(link, headers=headers)
-#response = requests.get(link).text
-#
-#soup = BeautifulSoup(response, 'lxml')
-#block = soup.find_all(class_='card-mini _longgrid')
-#block0 = block[0]
-#block1 = block[0].__dict__['attrs']['href']
-#block2 = block[0].text
-#text = block2[:-5]
-#text2 = block2[-5:]
-#req = resp.request.headers
-#print(len(block), block0, block1, text, text2, req, sep='\n')
-#print(soup)
+headers = {'User-Agent': 'Mozilla/5'}
 
-url = 'https://api.api-ninjas.com/v1/dadjokes?limit=1'
-response = requests.get(url).text
+joke_url = 'https://www.anekdot.ru/random/anekdot/'
+response = requests.get(joke_url).text
 soup = BeautifulSoup(response, 'lxml')
-print(soup)
+joke = soup.find('div', class_='text').text
+
+
+#joke = 'Мужчина? Как клубок: если выпустить из рук - распускается; взять в руки - сматывается! Выход один - крепко держать за кончик.'
+#
+#trans_url = 'https://translate.google.com/?hl=ru&sl=ru&tl=tt&text='
+#
+#symb_to_url = {' ': '%20', ',': '%2C','?': '%3F', ':': '%3A', ';': '%3B'}
+#
+#for symb in symb_to_url:
+#    if symb in joke:
+#        joke = joke.replace(symb, symb_to_url[symb])
+#
+#response = requests.get(trans_url+joke).text
+#soup = BeautifulSoup(response, 'lxml')
+
